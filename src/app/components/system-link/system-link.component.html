@@ -1,0 +1,23 @@
+
+@if (routerLink) {
+    <a [routerLink]="routerLink" [class]="getStyle() + 'flex justify-center items-center gap-2'">
+        @if(icon)
+        {
+        <i [class]="icon"></i>
+        }
+        @if(text){
+        {{text}}
+        }
+    </a>
+}
+@else {
+    <a [href]="link" target="_blank" [class]="getStyle() + 'flex justify-center items-center gap-2'">
+        @if(icon)
+        {
+        <i [class]="icon"></i>
+        }
+        @if(text){
+        {{text}}
+        }
+    </a>
+}

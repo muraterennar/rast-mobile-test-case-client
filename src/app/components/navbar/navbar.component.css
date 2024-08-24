@@ -1,0 +1,9 @@
+/* Menü açıldığında translate ayarları yapılacak */
+#menuDiv.active {
+  transform: translateX(0);
+}
+
+#menuDiv {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}

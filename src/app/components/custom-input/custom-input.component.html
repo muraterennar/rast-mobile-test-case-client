@@ -1,0 +1,19 @@
+
+<!-- <div class="flex flex-col justify-start items-start gap-2">
+    <label class="font-bold " for="{{name}}">{{label}} : </label>
+    <input [type]="type" [name]="name" [placeholder]="placeholder ?? ''" [class]="'px-4 py-2 w-full rounded-md outline-none ring-0 focus:ring-1 ring-primary' + class">
+</div> -->
+
+
+<div class="flex flex-col justify-start items-start gap-2">
+    <label class="font-bold" [for]="name">{{ label }}: </label>
+    <input 
+        [type]="type" 
+        [name]="name" 
+        [placeholder]="placeholder ?? ''" 
+        [class]="'px-4 py-2 w-full rounded-md outline-none ring-0 focus:ring-1 ring-primary' + class"
+        [value]="value"
+        (input)="handleInput($event)"
+        (blur)="onTouched()"
+    />
+</div>

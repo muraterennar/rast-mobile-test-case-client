@@ -1,0 +1,22 @@
+<nav class="bg-white py-7 px-4 lg:px-20 container mx-auto flex justify-between items-center duration-300 relative">
+    <img [src]="imageUrl" alt="logo">
+  
+    <div
+      [ngClass]="{'translate-x-0': menuOpen, '-translate-x-full': !menuOpen}"
+      class="fixed top-0 left-0 lg:static lg:translate-x-0 lg:flex lg:justify-center lg:items-center flex-1 h-full bg-white duration-300">
+      <div
+        #menuDiv
+        class="flex flex-col p-12 justify-start gap-7 items-start h-screen lg:flex-row lg:h-auto lg:p-0 lg:justify-around lg:items-center">
+        <app-system-link *ngFor="let category of categories | async" [text]="category.name" [link]="category.link"></app-system-link>
+      </div>
+    </div>
+  
+    <div class="hidden lg:flex justify-center items-center gap-2">
+      <app-system-button [icon]="youtubeIcon" [systemButtonStyle]="setSystemButtonStyle()"></app-system-button>
+      <app-system-button [icon]="instagramIcon" [systemButtonStyle]="setSystemButtonStyle()"></app-system-button>
+      <app-system-button [icon]="behanceIcon" [systemButtonStyle]="setSystemButtonStyle()"></app-system-button>
+      <app-system-button [icon]="linkedinIcon" [systemButtonStyle]="setSystemButtonStyle()"></app-system-button>
+    </div>
+  
+    <app-system-button (click)="toggleMenu()" [icon]="hambergerIcon" [systemButtonStyle]="setHambergurButtonStyle()"></app-system-button>
+  </nav>

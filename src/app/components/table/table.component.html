@@ -1,0 +1,111 @@
+<div class="table-to-card border border-secondary-300 rounded-lg">
+    <!-- Normal Table with Rounded Corners -->
+    <table class="min-w-full divide-y divide-secondary-300 hidden lg:table rounded-lg overflow-hidden">
+        <thead class="bg-white">
+            <tr class="[&>th]:p-6 [&>th]:text-sm [&>th]:font-semibold [&>th]:w-4/12 [&>th]:text-left">
+                <th (click)="sortData('socialMediaLink')"
+                    class="text-black border-e border-secondary-300 tracking-wider capitalize relative cursor-pointer">
+                    <div class="flex justify-between items-center">
+                        <span>Sosyal Medya Linki</span>
+                        <i *ngIf="sortColumn === 'socialMediaLink'" [ngClass]="{
+                         'ri-arrow-up-line': sortDirection === 'asc',
+                         'ri-arrow-down-line': sortDirection === 'desc'
+                       }" class="text-primary scale-125"></i>
+                    </div>
+                </th>
+                <th (click)="sortData('socialMediaName')"
+                    class="text-black border-e border-secondary-300 tracking-wider capitalize relative cursor-pointer">
+                    <div class="flex justify-between items-center">
+                        <span>Sosyal Medya Adı</span>
+                        <i *ngIf="sortColumn === 'socialMediaName'" [ngClass]="{
+                         'ri-arrow-up-line': sortDirection === 'asc',
+                         'ri-arrow-down-line': sortDirection === 'desc'
+                       }" class="text-primary scale-125"></i>
+                    </div>
+                </th>
+                <th (click)="sortData('description')"
+                    class="text-black border-e border-secondary-300 tracking-wider capitalize relative cursor-pointer">
+                    <div class="flex justify-between items-center">
+                        <span>Açıklama</span>
+                        <i *ngIf="sortColumn === 'description'" [ngClass]="{
+                         'ri-arrow-up-line': sortDirection === 'asc',
+                         'ri-arrow-down-line': sortDirection === 'desc'
+                       }" class="text-primary scale-125"></i>
+                    </div>
+                </th>
+                <th class="text-black border-e border-secondary-300 tracking-wider capitalize relative cursor-pointer">
+                    <!-- Empty header for spacing -->
+                </th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-secondary-200">
+            <tr *ngFor="let item of currentPageData"
+                class="odd:bg-secondary-100 even:bg-secondary-200 [&>td]:border-e border-secondary-300 h-16 p-4">
+                <td class="p-5 whitespace-nowrap">{{item.socialMediaLink}}</td>
+                <td class="p-5 whitespace-nowrap">{{item.socialMediaName}}</td>
+                <td class="p-5 whitespace-nowrap">{{item.description}}</td>
+                <td class="p-5 whitespace-nowrap">
+                    <ng-container *ngIf="item.id > 0">
+                        <div class="flex justify-center items-center gap-4">
+                            <app-system-button (click)="handleNavigation(item.id)" [icon]="updateIcon"
+                                [systemButtonStyle]="setUpdateSystemLinkStyle()"></app-system-button>
+                            <app-system-button [icon]="deleteIcon" [systemButtonStyle]="setDeleteSystemButtonStyle()"
+                                (click)="openDeleteSheet(item)"></app-system-button>
+                        </div>
+                    </ng-container>
+
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Card View for smaller screens -->
+    <div class="block lg:hidden">
+        <div *ngFor="let item of currentPageData">
+            <ng-container *ngIf="item">
+                <div class="card border bg-white border-gray-200 rounded-lg p-4 mb-4">
+                    <h3 class="text-lg font-semibold">{{item.socialMediaName}}</h3>
+                    <p><span class="font-semibold text-primary">Link : </span>{{item.socialMediaLink}}</p>
+                    <p><span class="font-semibold text-primary">Açıklama : </span>{{item.description}}</p>
+                    <app-system-button (click)="handleNavigation(item.id)" [icon]="updateIcon"
+                        [systemButtonStyle]="setUpdateSystemLinkStyle()"></app-system-button>
+                    <app-system-button [icon]="deleteIcon" [systemButtonStyle]="setDeleteSystemButtonStyle()"
+                        (click)="openDeleteSheet(item)"></app-system-button>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-4">
+        <div class="flex justify-start items-center gap-4">
+            <span class="text-sm text-primary">Show:</span>
+            <input type="number" class="rounded-md w-full ps-2 border border-primary ring-0 outline-none show-spinner"
+                min="1" [value]="paginationInfo.itemsPerPage" [attr.max]="getTotalItems()"
+                (change)="updateItemsPerPage($event)">
+        </div>
+
+        <!-- Sayfa değiştirme butonları -->
+        <div class="flex justify-end items-center gap-4">
+            <!-- Previous Page Button -->
+            <button (click)="onPageChange(paginationInfo.currentPage - 1)" [disabled]="paginationInfo.currentPage === 1"
+                class="px-1 py-0.5 text-primary rounded-md hover:bg-primary hover:text-white duration-300">
+                <i class="ri-arrow-left-s-line"></i>
+            </button>
+
+            <!-- Page Number Input -->
+            <div class="flex items-center gap-2">
+                <input type="number" [value]="paginationInfo.currentPage" (change)="onPageChange($event)" min="1"
+                    [max]="totalPages"
+                    class="w-auto px-1 py-0.5 border border-gray-300 rounded-md text-center no-spinner" />
+                <span>of {{ totalPages }}</span>
+            </div>
+
+            <!-- Next Page Button -->
+            <button (click)="onPageChange(paginationInfo.currentPage + 1)"
+                [disabled]="paginationInfo.currentPage === totalPages"
+                class="px-1 py-0.5 text-primary rounded-md hover:bg-primary hover:text-white duration-300">
+                <i class="ri-arrow-right-s-line"></i>
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.no-spinner {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.min-h-card {
+    min-height: 500px; /* Kartın minimum yüksekliğini ayarlayın. İhtiyacınıza göre bu değeri ayarlayabilirsiniz. */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
