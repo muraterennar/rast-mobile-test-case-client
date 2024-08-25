@@ -81,25 +81,25 @@
         </div>
 
         <!-- Sayfa değiştirme butonları -->
-        <div class="flex justify-end items-center">
+        <div class="flex items-center gap-4">
             <!-- Previous Page Button -->
             <button [disabled]="pageInfo?.hasPrevPage === false" (click)="prevPage()"
-                [ngClass]="{'text-gray-500': pageInfo?.hasPrevPage === false ?? 'text-primary hover:bg-primary hover:text-white'}"
-                class="px-1 py-0.5 rounded-md duration-300">
+                [ngClass]="{'text-gray-500': pageInfo?.hasPrevPage === false, 'text-primary hover:bg-primary hover:text-white': pageInfo?.hasPrevPage !== false}"
+                class="px-2 py-1 rounded-md duration-300">
                 <i class="ri-arrow-left-s-line"></i>
             </button>
-
+        
             <!-- Page Number Input -->
-            <div class="flex justify-center items-center gap-2">
+            <div class="flex items-center gap-2">
                 <input type="number" min="1" [value]="pageInfo?.page" (change)="changePage($event)"
-                    class="w-2/12 px-1 py-0.5 border text-gray-600 border-gray-300 rounded-md text-center no-spinner" />
+                    class="w-12 px-2 py-1 border text-gray-600 border-gray-300 rounded-md text-center no-spinner" />
                 <span class="text-gray-600">of {{pageInfo?.totalPages}}</span>
             </div>
-
+        
             <!-- Next Page Button -->
             <button [disabled]="pageInfo?.hasNextPage === false" (click)="nextPage()"
-                [ngClass]="{'text-gray-600': pageInfo?.hasNextPage === false ?? ' text-primary '}"
-                class="px-1 py-0.5 rounded-md duration-300 hover:bg-primary hover:text-white">
+                [ngClass]="{'text-gray-600': pageInfo?.hasNextPage === false, 'text-primary hover:bg-primary hover:text-white': pageInfo?.hasNextPage !== false}"
+                class="px-2 py-1 rounded-md duration-300 hover:bg-primary hover:text-white">
                 <i class="ri-arrow-right-s-line"></i>
             </button>
         </div>

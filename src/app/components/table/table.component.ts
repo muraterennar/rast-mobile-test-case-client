@@ -93,6 +93,8 @@ export class TableComponent implements OnInit {
 
       this.socailMediaDatas = paginateData.docs;
       this.pageInfo = paginateData;
+
+      console.log(this.pageInfo);
     });
   }
 
@@ -159,8 +161,11 @@ export class TableComponent implements OnInit {
 
   nextPage(): void {
     if (this.pageInfo.hasNextPage) {
+      console.log(this.pageInfo);
       this.getSocialMedia(this.pageInfo.nextPage);
     }
+    else
+    console.log("pageInfoYok");
   }
 
   prevPage(): void {
