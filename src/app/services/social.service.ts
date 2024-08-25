@@ -1,87 +1,144 @@
 import { Injectable } from '@angular/core';
 import { SocialMediaModel } from '../shared/models/social.model';
+import {
+  CustomHttpService,
+  RequestParameters,
+} from './common/custom-http.service';
+import { firstValueFrom } from 'rxjs';
+import { PaginateModal } from '../shared/models/paginateModal';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SocialService {
-  data: SocialMediaModel[] = [
-    {
-      id: 1,
-      socialMediaLink: 'johnexample.com',
-      socialMediaName: 'John Doe',
-      description: 'Admin',
-    },
-    {
-      id: 2,
-      socialMediaLink: 'janeexample.com',
-      socialMediaName: 'Facebook',
-      description: 'Editor',
-    },
-    {
-      id: 3,
-      socialMediaLink: 'emilyexample.com',
-      socialMediaName: 'Emily Davis',
-      description: 'Contributor',
-    },
-  ];
+  constructor(private httpService: CustomHttpService) {}
 
-  // data: SocialMediaModel[];
+  async getSocialMedia(
+    page: number,
+    limit: number,
+    successCallBack?: (response?: PaginateModal<SocialMediaModel>) => void,
+    errorCallBack?: (error?: any) => void
+  ): Promise<void> {
+    let requestParameter: RequestParameters = {
+      controller: 'socialmedia',
+      action: 'api/getall',
+      queryString: `page=${page}&limit=${limit}`,
+    };
 
-  constructor() {
-    // Initialize with some example data
-    // this.data = Array.from({ length: 12 }, (_, index) => ({
-    //   id: index + 1,
-    //   socialMediaLink: `https://example.com/link${index + 1}`,
-    //   socialMediaName: `Social Media ${index + 1}`,
-    //   description: `Description for Social Media ${index + 1}`
-    // }));
-  }
+    const service =
+      this.httpService.get<PaginateModal<SocialMediaModel>>(requestParameter);
+    const promiseData = await firstValueFrom(service);
 
-  getSocialMedia(): SocialMediaModel[] {
-    return this.data;
-  }
-
-  getSocialMediaById(id: number): SocialMediaModel {
-    return this.data.find((social) => social.id === id);
-  }
-
-  addSocialMedia(social: SocialMediaModel): void {
-    this.data.push(social);
-  }
-
-  updateSocialMedia(social: SocialMediaModel): void {
-    const index = this.data.findIndex((s) => s.id === social.id);
-    this.data[index] = social;
-  }
-
-  deleteSocialMedia(id: number): void {
-    this.data = this.data.filter((social) => social.id !== id);
-  }
-
-  getPaginatedData(currentPage: number, itemsPerPage: number): SocialMediaModel[] {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedData = this.data.slice(startIndex, endIndex);
-
-    // Fill remaining slots with empty data if needed
-    while (paginatedData.length < itemsPerPage) {
-      paginatedData.push({
-        id: 0,
-        socialMediaLink: '',
-        socialMediaName: '',
-        description: ''
-      });
+    if (promiseData) {
+      successCallBack?.(promiseData);
+    } else {
+      errorCallBack?.('Error');
     }
-
-    return paginatedData;
   }
 
-  getTotalItems(): number {
-    return this.data.length;
+  async getSocialMediaById(
+    id: string,
+    successCallBack?: (response?: SocialMediaModel) => void,
+    errorCallBack?: (error?: any) => void
+  ): Promise<void> {
+    let requestParameter: RequestParameters = {
+      controller: 'socialmedia',
+      action: `api/get/${id}`,
+    };
+
+    const service = this.httpService.get<SocialMediaModel>(requestParameter);
+    const promiseData = await firstValueFrom(service);
+
+    if (promiseData) {
+      successCallBack?.(promiseData);
+    } else {
+      errorCallBack?.('Error');
+    }
   }
 
-  addData(newData: SocialMediaModel[]) {
-    this.data = [...this.data, ...newData];
+  async getSocialMediaBySearch(
+    query: string,
+    succesCallBack?: (response?: PaginateModal<SocialMediaModel>) => void,
+    errorCallBack?: (error?: any) => void
+  ) {
+    let RequestParameters: RequestParameters = {
+      controller: 'socialmedia',
+      action: 'api/search',
+      queryString: `query=${query}`,
+    };
+
+    const service =
+      this.httpService.get<PaginateModal<SocialMediaModel>>(RequestParameters);
+    const promiseData = await firstValueFrom(service);
+
+    if (promiseData) succesCallBack?.(promiseData);
+    else errorCallBack?.('Error');
+  }
+
+  async createSocialMedia(
+    socialMedia: SocialMediaModel,
+    successCallBack?: (response?: SocialMediaModel) => void,
+    errorCallBack?: (error?: any) => void
+  ): Promise<void> {
+    let requestParameter: RequestParameters = {
+      controller: 'socialmedia',
+      action: 'api/add',
+    };
+
+    const service = this.httpService.post<SocialMediaModel>(
+      requestParameter,
+      socialMedia
+    );
+    const promiseData = await firstValueFrom(service);
+
+    if (promiseData) {
+      successCallBack?.(promiseData);
+    } else {
+      errorCallBack?.('Error');
+    }
+  }
+
+  async updateSocialMedia(
+    socialMedia: SocialMediaModel,
+    successCallBack?: (response?: SocialMediaModel) => void,
+    errorCallBack?: (error?: any) => void
+  ): Promise<void> {
+    let requestParameter: RequestParameters = {
+      controller: 'socialmedia',
+      action: `api/update/${socialMedia._id}`,
+    };
+
+    const service = this.httpService.put<SocialMediaModel>(
+      requestParameter,
+      socialMedia
+    );
+    const promiseData = await firstValueFrom(service);
+
+    if (promiseData) {
+      successCallBack?.(promiseData);
+    } else {
+      errorCallBack?.('Error');
+    }
+  }
+
+  async deleteSocialMedia(
+    id: string,
+    successCallBack?: (response?: SocialMediaModel) => void,
+    errorCallBack?: (error?: any) => void
+  ): Promise<void> {
+    let requestParameter: RequestParameters = {
+      controller: 'socialmedia',
+      action: `api/delete/${id}`,
+    };
+
+    const service = this.httpService.delete<SocialMediaModel>(requestParameter);
+    const promiseData = await firstValueFrom(service);
+
+    if (promiseData) {
+      successCallBack?.(promiseData);
+      console.log('Data:', promiseData);
+    } else {
+      errorCallBack?.('Error');
+    }
   }
 }

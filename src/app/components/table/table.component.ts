@@ -2,10 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SocialService } from '../../services/social.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import {
-  SystemLinkComponent,
-  SystemLinkStyle,
-} from '../system-link/system-link.component';
+import { SystemLinkComponent } from '../system-link/system-link.component';
 import { Icons } from '../../shared/models/icons';
 import {
   SystemButtonComponent,
@@ -23,7 +20,9 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { SocialMediaModel } from '../../shared/models/social.model';
 import { PascalCasePipe } from '../../shared/pipes/pascal-case.pipe';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
-import { MenuButtonItems } from '../menu-button/menu-button.component';
+import { PaginateModal } from '../../shared/models/paginateModal';
+import { MatDialogRef } from '@angular/material/dialog';
+import { SocialMediaTypeModal } from '../../shared/models/socialMediaType.modal';
 
 @Component({
   selector: 'app-table',
@@ -46,25 +45,23 @@ export class TableComponent implements OnInit {
   updateIcon: string = Icons.update;
   socialData: SocialMediaModel;
 
-  data: SocialMediaModel[] = [];
+  socailMediaDatas: SocialMediaModel[] = [];
   private currentModalId: string | null;
 
   currentPageData: SocialMediaModel[] = [];
-  paginationInfo = {
-    currentPage: 1,
-    itemsPerPage: 9,
-    totalItems: 0,
-  };
-  totalPages: number = 0;
+  pageInfo: PaginateModal<SocialMediaModel>;
+
+  sortDirection: 'asc' | 'desc' = 'asc'; // Default sort direction
+  sortColumn: keyof SocialMediaModel = 'SocialMediaLink'; // Default sort column
 
   tableHeads: TableHeader[] = [
-    { key: 'socialMediaLink', label: 'Sosyal Medya Linki' },
-    { key: 'socialMediaName', label: 'Sosyal Medya Adı' },
-    { key: 'description', label: 'Açıklama' },
+    { key: 'SocialMediaLink', label: 'Sosyal Medya Linki' },
+    { key: 'SocialMediaName', label: 'Sosyal Medya Adı' },
+    { key: 'Description', label: 'Açıklama' },
   ];
 
   searchValue: string = ''; // Arama işlemleri için kullanılacak
-  filterValues: MenuButtonItems[]; // Filtreleme işlemleri için kullanılacak
+  filterValues: SocialMediaTypeModal[]; // Filtreleme işlemleri için kullanılacak
 
   constructor(
     private socialService: SocialService,
@@ -75,7 +72,8 @@ export class TableComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.data = this.socialService.getSocialMedia();
+    this.getSocialMedia();
+
     this.activatedRoute.paramMap.pipe(take(1)).subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -83,15 +81,24 @@ export class TableComponent implements OnInit {
       }
     });
 
-    this.paginationInfo.totalItems = this.socialService.getTotalItems();
-    this.totalPages = Math.ceil(
-      this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage
-    );
-    this.updatePage();
+    this.currentPageData = [...this.socailMediaDatas]; // Başlangıçta tüm verileri göster
   }
 
-  sortDirection: 'asc' | 'desc' = 'asc'; // Default sort direction
-  sortColumn: keyof SocialMediaModel = 'socialMediaLink'; // Default sort column
+  async getSocialMedia(page: number = 1, limit: number = 9): Promise<void> {
+    await this.socialService.getSocialMedia(page, limit, (response) => {
+      const paginateData: PaginateModal<SocialMediaModel> = response;
+
+      this.socailMediaDatas = paginateData.docs;
+      this.pageInfo = paginateData;
+    });
+  }
+
+  async getSocialMediarSearch(searchText: string) {
+    await this.socialService.getSocialMediaBySearch(searchText, (response) => {
+      this.socailMediaDatas = response.docs;
+      this.pageInfo = response;
+    });
+  }
 
   sortData(column: keyof SocialMediaModel): void {
     const newDirection =
@@ -101,7 +108,7 @@ export class TableComponent implements OnInit {
           : 'asc'
         : 'asc';
 
-    this.data = this.data.sort((a, b) => {
+    this.socailMediaDatas = this.socailMediaDatas.sort((a, b) => {
       if (typeof a[column] === 'string' && typeof b[column] === 'string') {
         return newDirection === 'asc'
           ? a[column].localeCompare(b[column])
@@ -119,15 +126,47 @@ export class TableComponent implements OnInit {
 
     this.sortDirection = newDirection;
     this.sortColumn = column;
+  }
 
-    // Güncellenmiş sıralı verilerle mevcut sayfayı yeniden ayarla
-    this.updatePage(this.paginationInfo.currentPage);
+  changePage(event: Event): void {
+    const inputElement = event.target as HTMLInputElement; // event.target'ı HTMLInputElement olarak tip dönüşümü yapıyoruz
+    const value = Number(inputElement.value);
+
+    if (value > 0 && value <= this.pageInfo.totalPages) {
+      this.getSocialMedia(value);
+    } else {
+      inputElement.value = this.pageInfo.page.toString();
+    }
+  }
+
+  chanceLimit(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    const value = Number(inputElement.value);
+
+    if (value > 0 && value <= this.pageInfo.totalDocs) {
+      this.pageInfo.limit = value;
+      this.getSocialMedia(1, value);
+    } else {
+      inputElement.value = this.pageInfo.limit.toString();
+    }
+  }
+
+  nextPage(): void {
+    if (this.pageInfo.hasNextPage) {
+      this.getSocialMedia(this.pageInfo.nextPage);
+    }
+  }
+
+  prevPage(): void {
+    if (this.pageInfo.hasPrevPage) {
+      this.getSocialMedia(this.pageInfo.prevPage);
+    }
   }
 
   handleNavigation(id: number): void {
     // URL'yi güncelle ve ardından modalı aç
     this.router
-      .navigate(['home', id], { queryParamsHandling: 'merge' })
+      .navigate(['home', id.toString()], { queryParamsHandling: 'merge' })
       .then(() => {
         this.openUpdateDialog(id.toString());
       });
@@ -140,11 +179,10 @@ export class TableComponent implements OnInit {
       this.currentModalId = null; // Modal kapandıktan sonra ID'yi sıfırla
     }
 
-    // Modalı aç
     this.activatedRoute.data.pipe(take(1)).subscribe((data) => {
       this.socialData = data['socialData'];
       if (this.socialData) {
-        this.customDialog.openDialog<SocialMediaModel>(
+        const dialogRef = this.customDialog.openDialog<SocialMediaModel>(
           UpdateFormComponent,
           {
             title: 'Hesap Güncelle',
@@ -153,215 +191,67 @@ export class TableComponent implements OnInit {
           },
           this.socialData
         );
-        this.currentModalId = id; // Açık olan modal ID'sini güncelle
+
+        // Dialog kapatıldığında
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result === true) {
+            this.getSocialMedia(); // Verileri güncelle
+            this.router.navigate(['home']); // URL'yi güncelle
+          }
+        });
       }
     });
-  }
 
-  filterData(): SocialMediaModel[] {
-    let filteredData = this.data;
-  
-    console.log('Before Filtering:', this.data);
-  
-    // Arama işlemi varsa filtrele
-    if (this.searchValue) {
-      filteredData = filteredData.filter((item) =>
-        item.socialMediaName.toLowerCase().includes(this.searchValue.toLowerCase())
-      );
-      console.log('After Search Filtering:', filteredData);
-    }
-  
-    // Filtreleme işlemi varsa filtrele
-    if (this.filterValues && this.filterValues.length > 0) {
-      filteredData = filteredData.filter((item) =>
-        this.filterValues.some(
-          (filter) =>
-            item.socialMediaName.toLowerCase() === filter.text.toLowerCase() &&
-            filter.checked
-        )
-      );
-      console.log('After Filter Values Filtering:', filteredData);
-    } else {
-      // Filtreler temizlenmişse, tüm verileri döndür
-      filteredData = this.data;
-    }
-  
-    // Verileri sıralama
-    if (this.sortColumn) {
-      filteredData = filteredData.sort((a, b) => {
-        const aValue = a[this.sortColumn];
-        const bValue = b[this.sortColumn];
-  
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          return this.sortDirection === 'asc'
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
-        } else if (typeof aValue === 'number' && typeof bValue === 'number') {
-          return this.sortDirection === 'asc'
-            ? aValue - bValue
-            : bValue - aValue;
-        }
-        return 0;
-      });
-    }
-  
-    console.log('After Sorting:', filteredData);
-    return filteredData;
-  }
-
-  updatePage(page: number = this.paginationInfo.currentPage) {
-    this.paginationInfo.currentPage = page;
-  
-    // Filtrelenmiş ve sıralanmış veri setini al
-    const filteredData = this.filterData();
-  
-    console.log('Filtered Data for Pagination:', filteredData);
-  
-    // Toplam sayfa sayısını güncelle
-    this.paginationInfo.totalItems = filteredData.length;
-    this.totalPages = Math.ceil(this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage);
-  
-    // Sayfa başına 9 öğe olmasını sağlamak için verileri paginate et
-    const startIndex: number = (page - 1) * this.paginationInfo.itemsPerPage;
-    const endIndex: number = startIndex + this.paginationInfo.itemsPerPage;
-  
-    // Sayfayı al
-    const paginatedData = filteredData.slice(startIndex, endIndex);
-  
-    console.log('Paginated Data:', paginatedData);
-  
-    // Eksik veri varsa boş öğelerle dolgu yap
-    const missingItemsCount: number = this.paginationInfo.itemsPerPage - paginatedData.length;
-    if (missingItemsCount > 0) {
-      const dummyItems: (SocialMediaModel | null)[] = Array(missingItemsCount).fill(null);
-      this.currentPageData = [...paginatedData, ...dummyItems];
-    } else {
-      this.currentPageData = paginatedData;
-    }
-  }
-
-  getPaginatedData(
-    currentPage: number,
-    itemsPerPage: number
-  ): SocialMediaModel[] {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return this.data.slice(startIndex, endIndex); // `socialMedia` doğru şekilde tanımlandığından emin olun
-  }
-
-  updateItemsPerPage(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-    let newItemsPerPage = parseInt(inputElement.value, 10);
-
-    // Dinamik olarak hesaplanan maksimum değer
-    const maxItemsPerPage = this.getMaxItemsPerPage();
-
-    // Eğer yeni girilen değer maksimum değerden büyükse, maksimum değere sınırla
-    if (newItemsPerPage > maxItemsPerPage) {
-      newItemsPerPage = maxItemsPerPage;
-    }
-
-    // Eğer yeni girilen değer minimum değerden küçükse, minimum değere sınırla
-    if (newItemsPerPage < 1) {
-      newItemsPerPage = 1;
-    }
-
-    this.paginationInfo.itemsPerPage = newItemsPerPage;
-    this.paginationInfo.currentPage = 1; // Sayfa 1'e döndür
-
-    // Pagination bilgilerini yeniden hesapla ve sayfayı güncelle
-    this.paginationInfo.totalItems = this.socialService.getTotalItems();
-    this.totalPages = Math.ceil(
-      this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage
-    );
-    this.updatePage();
-
-    // Input alanındaki değeri güncellenmiş değere göre ayarla
-    inputElement.value = this.paginationInfo.itemsPerPage.toString();
-  }
-
-  getMaxItemsPerPage(): number {
-    // Filtrelenmiş veri sayısını al
-    const filteredDataCount = this.filterData().length;
-
-    // Eğer filtreleme veya arama yapılmışsa filtrelenmiş veri sayısını döndür
-    if (
-      this.searchValue ||
-      (this.filterValues && this.filterValues.length > 0)
-    ) {
-      return filteredDataCount;
-    }
-
-    // Eğer filtreleme veya arama yapılmamışsa toplam öğe sayısını döndür
-    return this.getTotalItems();
-  }
-
-  onPageChange(event: Event | number) {
-    let pageNumber: number;
-
-    if (typeof event === 'number') {
-      pageNumber = event;
-    } else {
-      const inputElement = event.target as HTMLInputElement;
-      pageNumber = parseInt(inputElement.value, 10);
-    }
-
-    if (pageNumber > 0 && pageNumber <= this.totalPages) {
-      this.paginationInfo.currentPage = pageNumber;
-      this.updatePage(pageNumber);
-    }
-  }
-
-  addMoreData(newData: SocialMediaModel[]) {
-    this.socialService.addData(newData);
-    this.data = this.socialService.getSocialMedia(); // Verileri güncelle
-    this.paginationInfo.totalItems = this.socialService.getTotalItems();
-    this.totalPages = Math.ceil(
-      this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage
-    );
-    this.updatePage();
+    this.currentModalId = id;
   }
 
   openDeleteSheet(item: SocialMediaModel): void {
     this.customButtonSheet
       .openButtonSheet(DeleteButtonComponent, { item })
-      .subscribe((result) => {
+      .subscribe(async (result) => {
         if (result) {
-          // Silme işlemi
-          this.socialService.deleteSocialMedia(item.id);
-          this.data = this.socialService.getSocialMedia(); // Verileri güncelle
-          this.paginationInfo.totalItems = this.socialService.getTotalItems();
-          this.totalPages = Math.ceil(
-            this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage
+          // ---------------- Silme işlemi
+          await this.socialService.getSocialMediaById(
+            item._id.toString(),
+            async (response) => {
+              await this.socialService.deleteSocialMedia(
+                `${response._id}`,
+                (response) => {}
+              );
+              this.getSocialMedia(); // Verileri güncelle
+            }
           );
-          this.updatePage();
         }
       });
   }
 
-  getTotalItems(): number {
-    return this.socialService.getTotalItems();
-  }
+  handleSearchItems(searchItem: string): void {
+    this.searchValue = searchItem.toLowerCase(); // Arama değerini küçük harfe çeviriyoruz.
 
-  handleSearchItems(searchItem: string) {
-    this.searchValue = searchItem;
-    console.log(searchItem);
-    this.updatePage(); // Filtreleme sonrası sayfa güncellemesi
-  }
+    console.log(this.searchValue);
 
-  handleFilterItems(filterItems: MenuButtonItems[]) {
-    this.filterValues = filterItems;
-  
-    // Eğer filtreler temizlendiğinde tüm verileri yüklemek gerekiyorsa:
-    if (filterItems.length === 0 || filterItems.every(filter => !filter.checked)) {
-      this.data = this.socialService.getSocialMedia(); // Tüm verileri tekrar yükle
+    if (this.searchValue !== '') {
+      this.getSocialMediarSearch(this.searchValue);
+    } else {
+      this.getSocialMedia();
     }
-  
-    // Filtrelerin yeniden uygulandığından emin olun
-    const filteredData = this.filterData();
-    this.paginationInfo.totalItems = filteredData.length;
-    this.totalPages = Math.ceil(this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage);
-    this.updatePage(); // Sayfayı güncelle
+  }
+
+  handleFilterItems(filterItems: SocialMediaTypeModal[]) {
+    this.filterValues = filterItems;
+
+    // Eğer filtreler temizlendiğinde tüm verileri yüklemek gerekiyorsa:
+    if (
+      filterItems.length === 0 ||
+      filterItems.every((filter) => !filter.checked)
+    ) {
+      this.getSocialMedia();
+    } else {
+      let filterValue = this.filterValues[0].name;
+
+      // Filtreleme işlemleri
+      this.getSocialMediarSearch(filterValue);
+    }
   }
 
   setDeleteSystemButtonStyle(): SystemButtonStyle {
@@ -372,6 +262,14 @@ export class TableComponent implements OnInit {
       borderRadius: 'rounded',
       fontSize: 'text-sm',
     };
+  }
+
+  // TableComponent'te yanıtları işlemek için metodlar ekleyin
+  updateTableBasedOnResponse(response: string) {
+    if (response === 'positive') {
+      // Tabloyu güncelle
+      this.getSocialMedia();
+    }
   }
 
   setUpdateSystemLinkStyle(): SystemButtonStyle {

@@ -10,13 +10,12 @@ import {
   ModalSize,
 } from '../../services/common/custom-modal.service';
 import { SocialMediaModel } from '../../shared/models/social.model';
-import {
-  MenuButtonComponent,
-  MenuButtonItems,
-} from '../menu-button/menu-button.component';
+import { MenuButtonComponent } from '../menu-button/menu-button.component';
 import { SocialMediaTypeService } from '../../services/social-media-type.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
+import { SocialService } from '../../services/social.service';
+import { SocialMediaTypeModal } from '../../shared/models/socialMediaType.modal';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-toolbar',
@@ -32,17 +31,17 @@ export class ToolbarComponent implements OnInit {
   filterIcon: string = Icons.filter;
   socialData: SocialMediaModel;
 
-  menuButtonItems: MenuButtonItems[];
+  menuButtonItems: SocialMediaTypeModal[];
 
   searchControl: FormControl;
 
   @Output() searchValueChange: EventEmitter<string> =
     new EventEmitter<string>();
-  filterItems: MenuButtonItems[];
-  @Output() filterValueChange: EventEmitter<MenuButtonItems[]> =
-    new EventEmitter<MenuButtonItems[]>();
+  @Output() filterValueChange: EventEmitter<SocialMediaTypeModal[]> =
+    new EventEmitter<SocialMediaTypeModal[]>();
   @Output() click = new EventEmitter<string>();
   @Output() onEnterClick = new EventEmitter<string>();
+  @Output() addData = new EventEmitter<string>();
 
   constructor(
     private customDialog: CustomModalService,
@@ -61,36 +60,13 @@ export class ToolbarComponent implements OnInit {
   }
 
   getSocialMediaTypes() {
-    this.menuButtonItems = this.socialMediaTypeService
-      .getSocialMediaTypeNames()
-      .map((x) => {
-        return { text: x, checked: false };
-      });
+    this.menuButtonItems = this.socialMediaTypeService.getSocialMediaTypes();
   }
 
   // MenuButtonComponent'den gelen checkedItems'i işleyen metot
-  handleCheckedItems(checkedItems: MenuButtonItems[]) {
-    // filterItems'ın tanımlı olup olmadığını kontrol edin ve tanımlı değilse boş bir dizi olarak inisiyalize edin
-    if (!this.filterItems) {
-      this.filterItems = [];
-    }
-  
-    // checkedItems listesini döngüye alarak mevcut durumu tersine çevir
-    checkedItems.forEach((item) => {
-      // filterItems içinde eşleşen öğeyi bul
-      const existingItem = this.filterItems.find((filterItem) => filterItem.text === item.text);
-  
-      if (existingItem) {
-        // Mevcut öğenin checked durumunu tersine çevir
-        existingItem.checked = !existingItem.checked;
-      } else {
-        // Eğer öğe bulunamazsa, onu filtreye ekleyin
-        this.filterItems.push({ ...item, checked: true });
-      }
-    });
-  
-    // Güncellenmiş filtreleri ebeveyne gönder
-    this.filterValueChange.emit(this.filterItems);
+  handleCheckedItems(checkedItems: SocialMediaTypeModal[]) {
+    // Seçilen öğeleri ebeveyne gönder
+    this.filterValueChange.emit(checkedItems);
   }
 
   chageSearchValue() {
@@ -101,11 +77,32 @@ export class ToolbarComponent implements OnInit {
   }
 
   openDialog() {
-    this.customDialog.openDialog(AddFormComponent, {
+    const dialogRef = this.customDialog.openDialog(AddFormComponent, {
       title: 'Yeni Hesap Ekle',
       width: ModalSize.Medium,
       height: 'auto',
     });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        // Kullanıcı "Evet" dedi
+        this.handlePositiveResponse();
+      } else if (result === false) {
+        // Kullanıcı "Hayır" dedi
+        this.handleNegativeResponse();
+      }
+    });
+  }
+
+  handlePositiveResponse() {
+    // Bu metodda table componentini güncelleyen işlemler yapılır
+    // Örneğin, bir event emit edebilir veya service kullanabilirsiniz
+    this.addData.emit('positive');
+  }
+
+  handleNegativeResponse() {
+    // Kullanıcı "Hayır" dediğinde yapılacak işlemler
+    this.addData.emit('negative');
   }
 
   searchButtonStyle(): SystemButtonStyle {

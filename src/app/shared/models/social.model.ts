@@ -1,15 +1,15 @@
 export interface SocialMediaModel {
-  id: number;
-  socialMediaLink: string;
-  socialMediaName: string;
-  description: string;
+  _id: number;
+  SocialMediaLink: string;
+  SocialMediaName: string;
+  Description: string;
 }
 
 const emptySocialMedia: SocialMediaModel = {
-  id: 0,
-  socialMediaLink: '',
-  socialMediaName: '',
-  description: '',
+  _id: 0,
+  SocialMediaLink: '',
+  SocialMediaName: '',
+  Description: '',
 };
 
 // Boş veri dizisini oluşturma

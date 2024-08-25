@@ -6,4 +6,9 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./pages/home-page/home.routes').then((m) => m.HOME_ROUTES),
   },
+  {
+    path: '',
+    redirectTo: 'home',
+    pathMatch: 'prefix',
+  }
 ];

@@ -6,13 +6,13 @@ import { SocialMediaTypeModal } from '../shared/models/socialMediaType.modal';
 })
 export class SocialMediaTypeService {
   data: SocialMediaTypeModal[] = [
-    { id: 1, name: 'Facebook' },
-    { id: 2, name: 'Twitter' },
-    { id: 3, name: 'Instagram' },
-    { id: 4, name: 'LinkedIn' },
-    { id: 5, name: 'YouTube' },
-    { id: 6, name: 'Pinterest' },
-    { id: 7, name: 'Snapchat' },
+    { id: 1, name: 'Facebook', checked: false },
+    { id: 2, name: 'Twitter', checked: false  },
+    { id: 3, name: 'Instagram', checked: false  },
+    { id: 4, name: 'LinkedIn', checked: false  },
+    { id: 5, name: 'YouTube', checked: false },
+    { id: 6, name: 'Pinterest', checked: false  },
+    { id: 7, name: 'Snapchat', checked: false  },
   ];
 
   constructor() {}

@@ -1,5 +1,5 @@
-<app-toolbar (searchValueChange)="handleSearchItems($event)"
-    (filterValueChange)="handleFilterItems($event)" (onEnterClick)="handleSearchItems($event)"></app-toolbar>
+<app-toolbar (searchValueChange)="handleSearchItems($event)" (filterValueChange)="handleFilterItems($event)"
+    (onEnterClick)="handleSearchItems($event)" (addData)="updateTableBasedOnResponse($event)"></app-toolbar>
 
 <table class="min-w-full divide-y divide-secondary-300 hidden lg:table rounded-lg overflow-hidden">
     <thead class="bg-white">
@@ -22,71 +22,99 @@
         </tr>
     </thead>
     <tbody class="bg-white divide-y divide-secondary-200">
-        <tr *ngFor="let item of currentPageData"
+        <!-- <tr *ngFor="let social of socailMediaDatas"
             class="odd:bg-secondary-100 even:bg-secondary-200 [&>td]:border-e border-secondary-300 h-16 p-4">
-            <td class="p-5 whitespace-nowrap">{{ item?.socialMediaLink }}</td>
-            <td class="p-5 whitespace-nowrap">{{ item?.socialMediaName | pascalCase }}</td>
-            <td class="p-5 whitespace-nowrap">{{ item?.description }}</td>
+            <td class="p-5 whitespace-nowrap">{{ social.socialMediaLink }}</td>
+            <td class="p-5 whitespace-nowrap">{{ social.socialMediaName| pascalCase }}</td>
+            <td class="p-5 whitespace-nowrap">{{ social.description }}</td>
             <td class="p-5 whitespace-nowrap">
-                <ng-container *ngIf="item?.id > 0">
+                <ng-container *ngIf="social">
                     <div class="flex justify-center items-center gap-4">
-                        <app-system-button (click)="handleNavigation(item?.id)" [icon]="updateIcon"
+                        <app-system-button (click)="handleNavigation(social?.id)" [icon]="updateIcon"
                             [systemButtonStyle]="setUpdateSystemLinkStyle()"></app-system-button>
                         <app-system-button [icon]="deleteIcon" [systemButtonStyle]="setDeleteSystemButtonStyle()"
-                            (click)="openDeleteSheet(item)"></app-system-button>
+                            (click)="openDeleteSheet(social)"></app-system-button>
                     </div>
                 </ng-container>
             </td>
-        </tr>
+        </tr> -->
+
+        <ng-container *ngIf="socailMediaDatas && socailMediaDatas.length; else noTableDataTemplate">
+            <tr *ngFor="let social of socailMediaDatas"
+                class="odd:bg-secondary-100 even:bg-secondary-200 [&>td]:border-e border-secondary-300 h-16 p-4">
+                <td class="p-5 whitespace-nowrap">{{ social.SocialMediaLink }}</td>
+                <td class="p-5 whitespace-nowrap">{{ social.SocialMediaName | pascalCase }}</td>
+                <td class="p-5 whitespace-nowrap">{{ social.Description }}</td>
+                <td class="p-5 whitespace-nowrap">
+                    <ng-container *ngIf="social">
+                        <div class="flex justify-center items-center gap-4">
+                            <app-system-button (click)="handleNavigation(social?._id)" [icon]="updateIcon"
+                                [systemButtonStyle]="setUpdateSystemLinkStyle()"></app-system-button>
+                            <app-system-button [icon]="deleteIcon" [systemButtonStyle]="setDeleteSystemButtonStyle()"
+                                (click)="openDeleteSheet(social)"></app-system-button>
+                        </div>
+                    </ng-container>
+                </td>
+            </tr>
+        </ng-container>
+
+        <ng-template #noTableDataTemplate>
+            <tr class="odd:bg-secondary-100 even:bg-secondary-200 [&>td]:border-e border-secondary-300 h-16 p-4">
+                <td class="p-5 whitespace-nowrap text-center" colspan="4">Data Bulunamadı !</td>
+            </tr>
+        </ng-template>
     </tbody>
 </table>
 
 <!-- Card View for smaller screens -->
 <div class="block lg:hidden">
-    <div *ngFor="let item of currentPageData">
-        <ng-container *ngIf="item">
+    <ng-container *ngIf="socailMediaDatas && socailMediaDatas.length; else noDataTemplate">
+        <div *ngFor="let social of socailMediaDatas">
             <div class="card border bg-white border-gray-200 rounded-lg p-4 mb-4">
-                <h3 class="text-lg font-semibold">{{ item?.socialMediaName }}</h3>
-                <p><span class="font-semibold text-primary">Link: </span>{{ item?.socialMediaLink }}</p>
-                <p><span class="font-semibold text-primary">Açıklama: </span>{{ item?.description | pascalCase }}</p>
-                <app-system-button (click)="handleNavigation(item?.id)" [icon]="updateIcon"
+                <h3 class="text-lg font-semibold">{{ social?.SocialMediaName }}</h3>
+                <p><span class="font-semibold text-primary">Link: </span>{{ social?.SocialMediaLink }}</p>
+                <p><span class="font-semibold text-primary">Açıklama: </span>{{ social?.Description | pascalCase }}</p>
+                <app-system-button (click)="handleNavigation(social?._id)" [icon]="updateIcon"
                     [systemButtonStyle]="setUpdateSystemLinkStyle()"></app-system-button>
                 <app-system-button [icon]="deleteIcon" [systemButtonStyle]="setDeleteSystemButtonStyle()"
-                    (click)="openDeleteSheet(item)"></app-system-button>
+                    (click)="openDeleteSheet(social)"></app-system-button>
             </div>
-        </ng-container>
-    </div>
+        </div>
+    </ng-container>
+    <ng-template #noDataTemplate>
+        <div class="card border bg-white border-gray-200 rounded-lg p-4 mb-4">
+            <h3 class="text-lg font-semibold">Data Bulunamadı !</h3>
+        </div>
+    </ng-template>
 </div>
 
 <div class="flex justify-between items-center mt-4">
     <div class="flex justify-start items-center gap-4">
         <span class="text-sm text-primary">Show:</span>
-        <input type="number" class="rounded-md w-full ps-2 border border-primary ring-0 outline-none show-spinner"
-            min="1" [value]="paginationInfo.itemsPerPage" 
-            [attr.max]="getMaxItemsPerPage()"
-            (change)="updateItemsPerPage($event)">
+        <input type="number" class="rounded-md w-3/12 ps-2 border border-primary ring-0 outline-none show-spinner"
+            min="1" [value]="pageInfo?.limit" (change)="chanceLimit($event)" />
     </div>
 
     <!-- Sayfa değiştirme butonları -->
-    <div class="flex justify-end items-center gap-4">
+    <div class="flex justify-end items-center">
         <!-- Previous Page Button -->
-        <button (click)="onPageChange(paginationInfo.currentPage - 1)" [disabled]="paginationInfo.currentPage === 1"
-            class="px-1 py-0.5 text-primary rounded-md hover:bg-primary hover:text-white duration-300">
+        <button [disabled]="pageInfo?.hasPrevPage === false" (click)="prevPage()"
+            [ngClass]="{'text-gray-500': pageInfo?.hasPrevPage === false ?? 'text-primary hover:bg-primary hover:text-white'}"
+            class="px-1 py-0.5 rounded-md duration-300">
             <i class="ri-arrow-left-s-line"></i>
         </button>
 
         <!-- Page Number Input -->
-        <div class="flex items-center gap-2">
-            <input type="number" [value]="paginationInfo.currentPage" (change)="onPageChange($event)" min="1"
-                [max]="totalPages"
-                class="w-auto px-1 py-0.5 border border-gray-300 rounded-md text-center no-spinner" />
-            <span>of {{ totalPages }}</span>
+        <div class="flex justify-center items-center gap-2">
+            <input type="number" min="1" [value]="pageInfo?.page" (change)="changePage($event)"
+                class="w-2/12 px-1 py-0.5 border text-gray-600 border-gray-300 rounded-md text-center no-spinner" />
+            <span class="text-gray-600">of {{pageInfo?.totalPages}}</span>
         </div>
 
         <!-- Next Page Button -->
-        <button (click)="onPageChange(paginationInfo.currentPage + 1)"
-            [disabled]="paginationInfo.currentPage === totalPages"
-            class="px-1 py-0.5 text-primary rounded-md hover:bg-primary hover:text-white duration-300">
+        <button [disabled]="pageInfo?.hasNextPage === false" (click)="nextPage()"
+            [ngClass]="{'text-gray-600': pageInfo?.hasNextPage === false ?? ' text-primary '}"
+            class="px-1 py-0.5 rounded-md duration-300 hover:bg-primary hover:text-white">
             <i class="ri-arrow-right-s-line"></i>
         </button>
     </div>

@@ -1,19 +1,25 @@
-<section class=" bg-secondary-50 rounded-none">
-    <div class="w-full bg-white p-5 border-b border-primary">
+<section class="rounded-none bg-white">
+    <div class="w-full p-5 flex justify-between items-center">
         <h3 class="font-bold">{{title}}</h3>
+        <button type="button" class="flex justify-center items-center px-1 rounded-full" (click)="cancel()"><i [class]="closeIcon + ' text-lg'"></i></button>
     </div>
 
     <form [formGroup]="addedFormGroup">
-        <div class="px-5 py-12 bg-secondary-50 flex flex-col gap-7 flex-1">
-            <app-custom-input [label]="'Sosyal Medya Linki'" [name]="'socialMediaLink'" formControlName="socialMediaLink"></app-custom-input>
-            <app-custom-input [label]="'Sosyal Medya Adı'" [name]="'socialMediaName'" formControlName="socialMediaName"></app-custom-input>
-            <app-custom-input [label]="'Açıklama'" [name]="'description'" formControlName="description"></app-custom-input>
+        <div class="px-5 py-12 flex flex-col gap-7 flex-1">
+            <app-custom-input [label]="'Sosyal Medya Linki'" [name]="'socialMediaLink'"
+                formControlName="SocialMediaLink"></app-custom-input>
+            <app-custom-input [label]="'Sosyal Medya Adı'" [name]="'socialMediaName'"
+                formControlName="SocialMediaName"></app-custom-input>
+            <app-custom-input [label]="'Açıklama'" [name]="'description'"
+                formControlName="Description"></app-custom-input>
         </div>
+
 
         <div class="p-5 flex justify-end items-center">
-            <app-system-button [text]="'Kaydet'" (click)="onSubmit()"></app-system-button>
+            <div class="flex justify-end items-center gap-4">
+                <app-system-button [text]="'Vazgeç'" (click)="cancel()" [systemButtonStyle]="setCloseButtonStyle()"></app-system-button>
+                <app-system-button [text]="'Kaydet'" (click)="confirm()" [systemButtonStyle]="setSaveButtonStyle()"></app-system-button>
+            </div>
         </div>
-
     </form>
-
 </section>

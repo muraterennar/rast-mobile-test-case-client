@@ -7,8 +7,8 @@ import { MatDialog } from '@angular/material/dialog';
 export class CustomModalService {
   constructor(private matDialog: MatDialog) {}
 
-  openDialog<T = any>(component: any, config: Partial<ModalConfig>, data?: T): void {
-    this.matDialog.open(component, {
+  openDialog<T = any>(component: any, config: Partial<ModalConfig>, data?: T) {
+    const dialogRef = this.matDialog.open(component, {
       data: {
         title: config.title,
         datas: data ?? null,
@@ -18,6 +18,8 @@ export class CustomModalService {
       position: config.position,
       panelClass: config.panelClass,
     });
+
+    return dialogRef
   }
 
   closeDialog(): void {
