@@ -5,37 +5,37 @@ import { SocialMediaModel } from '../shared/models/social.model';
   providedIn: 'root',
 })
 export class SocialService {
-  // data: SocialMediaModel[] = [
-  //   {
-  //     id: 1,
-  //     socialMediaLink: 'johnexample.com',
-  //     socialMediaName: 'John Doe',
-  //     description: 'Admin',
-  //   },
-  //   {
-  //     id: 2,
-  //     socialMediaLink: 'janeexample.com',
-  //     socialMediaName: 'Jane Smith',
-  //     description: 'Editor',
-  //   },
-  //   {
-  //     id: 3,
-  //     socialMediaLink: 'emilyexample.com',
-  //     socialMediaName: 'Emily Davis',
-  //     description: 'Contributor',
-  //   },
-  // ];
+  data: SocialMediaModel[] = [
+    {
+      id: 1,
+      socialMediaLink: 'johnexample.com',
+      socialMediaName: 'John Doe',
+      description: 'Admin',
+    },
+    {
+      id: 2,
+      socialMediaLink: 'janeexample.com',
+      socialMediaName: 'Facebook',
+      description: 'Editor',
+    },
+    {
+      id: 3,
+      socialMediaLink: 'emilyexample.com',
+      socialMediaName: 'Emily Davis',
+      description: 'Contributor',
+    },
+  ];
 
-  data: SocialMediaModel[];
+  // data: SocialMediaModel[];
 
   constructor() {
     // Initialize with some example data
-    this.data = Array.from({ length: 12 }, (_, index) => ({
-      id: index + 1,
-      socialMediaLink: `https://example.com/link${index + 1}`,
-      socialMediaName: `Social Media ${index + 1}`,
-      description: `Description for Social Media ${index + 1}`
-    }));
+    // this.data = Array.from({ length: 12 }, (_, index) => ({
+    //   id: index + 1,
+    //   socialMediaLink: `https://example.com/link${index + 1}`,
+    //   socialMediaName: `Social Media ${index + 1}`,
+    //   description: `Description for Social Media ${index + 1}`
+    // }));
   }
 
   getSocialMedia(): SocialMediaModel[] {

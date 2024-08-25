@@ -1,30 +1,9 @@
-<div
-class="py-5 max-lg:flex-col max-lg:gap-y-4 flex justify-between items-center max-lg:items-start flex-nowrap">
-<div class="lg:flex-1 max-lg:w-full justify-center items-center flex-nowrap">
-    <input type="text" name="searchInput"
-        class="py-2 px-4 max-sm:12/12 sm:w-9/12 md:w-10/12 lg:w-3/12 rounded-l-full outline-none duration-300 hover:ring-2 focus:ring-2 active:ring-2 ring-offset-primary">
-    <app-system-button [icon]="searchIcon" [systemButtonStyle]="searchButtonStyle()"></app-system-button>
-
-    <app-system-button [icon]="filterIcon" class="ms-4"
-        [systemButtonStyle]="filterButtonStyle()"></app-system-button>
-
-        <!-- <ul nz-menu nzSelectable class="p-5 rounded-md flex flex-col justify-start items-start">
-
-            <li nz-menu-item class="flex justify-center items-center gap-3">
-                <input type="checkbox" name="socialMediLink" class="me-3">
-                <label>Sosyal Medaya Linki</label>
-            </li>
-            <li nz-menu-item class="flex justify-center items-center gap-3">
-                <input type="checkbox" name="socialMediName" class="me-3">
-                <label>Sosyal Medaya Adı</label>
-            </li>
-            <li nz-menu-item class="flex justify-center items-center gap-3">
-                <input type="checkbox" name="description" class="me-3">
-                <label>Açıklama</label>
-            </li>
-        </ul> -->
-
-</div>
-
-<app-system-button [text]="addButtonText" [icon]="plusIcon" (click)="openDialog()"></app-system-button>
+<div class="py-5 max-lg:flex-col max-lg:gap-y-4 flex justify-between items-center max-lg:items-start flex-nowrap">
+    <div class="lg:flex-1 max-lg:w-full justify-center items-center  flex-nowrap">
+        <input type="text" [formControl]="searchControl" (keyup.enter)="onEnter()"
+            class="py-2 px-4 max-sm:12/12 sm:w-9/12 md:w-10/12 lg:w-3/12 rounded-l-full outline-none duration-300 hover:ring-2 focus:ring-2 active:ring-2 ring-offset-primary">
+        <app-system-button [icon]="searchIcon" [systemButtonStyle]="searchButtonStyle()"></app-system-button>
+        <app-menu-button [menus]="menuButtonItems" (checkedItemsChange)="handleCheckedItems($event)"></app-menu-button>
+    </div>
+    <app-system-button [text]="addButtonText" [icon]="plusIcon" (click)="openDialog()"></app-system-button>
 </div>

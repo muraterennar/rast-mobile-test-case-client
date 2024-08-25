@@ -2,16 +2,28 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SocialService } from '../../services/social.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { SystemLinkComponent, SystemLinkStyle } from '../system-link/system-link.component';
+import {
+  SystemLinkComponent,
+  SystemLinkStyle,
+} from '../system-link/system-link.component';
 import { Icons } from '../../shared/models/icons';
-import { SystemButtonComponent, SystemButtonStyle } from '../system-button/system-button.component';
+import {
+  SystemButtonComponent,
+  SystemButtonStyle,
+} from '../system-button/system-button.component';
 import { UpdateFormComponent } from '../update-form/update-form.component';
-import { CustomModalService, ModalSize } from '../../services/common/custom-modal.service';
+import {
+  CustomModalService,
+  ModalSize,
+} from '../../services/common/custom-modal.service';
 import { take } from 'rxjs';
 import { DeleteButtonComponent } from '../delete-button/delete-button.component';
 import { CustomButtonSheetService } from '../../services/common/custom-button-sheet.service';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { SocialMediaModel } from '../../shared/models/social.model';
+import { PascalCasePipe } from '../../shared/pipes/pascal-case.pipe';
+import { ToolbarComponent } from '../toolbar/toolbar.component';
+import { MenuButtonItems } from '../menu-button/menu-button.component';
 
 @Component({
   selector: 'app-table',
@@ -23,6 +35,8 @@ import { SocialMediaModel } from '../../shared/models/social.model';
     SystemButtonComponent,
     DeleteButtonComponent,
     MatBottomSheetModule,
+    PascalCasePipe,
+    ToolbarComponent,
   ],
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css'], // Fix the typo from styleUrl to styleUrls
@@ -42,6 +56,15 @@ export class TableComponent implements OnInit {
     totalItems: 0,
   };
   totalPages: number = 0;
+
+  tableHeads: TableHeader[] = [
+    { key: 'socialMediaLink', label: 'Sosyal Medya Linki' },
+    { key: 'socialMediaName', label: 'Sosyal Medya Adı' },
+    { key: 'description', label: 'Açıklama' },
+  ];
+
+  searchValue: string = ''; // Arama işlemleri için kullanılacak
+  filterValues: MenuButtonItems[]; // Filtreleme işlemleri için kullanılacak
 
   constructor(
     private socialService: SocialService,
@@ -135,20 +158,92 @@ export class TableComponent implements OnInit {
     });
   }
 
+  filterData(): SocialMediaModel[] {
+    let filteredData = this.data;
+  
+    console.log('Before Filtering:', this.data);
+  
+    // Arama işlemi varsa filtrele
+    if (this.searchValue) {
+      filteredData = filteredData.filter((item) =>
+        item.socialMediaName.toLowerCase().includes(this.searchValue.toLowerCase())
+      );
+      console.log('After Search Filtering:', filteredData);
+    }
+  
+    // Filtreleme işlemi varsa filtrele
+    if (this.filterValues && this.filterValues.length > 0) {
+      filteredData = filteredData.filter((item) =>
+        this.filterValues.some(
+          (filter) =>
+            item.socialMediaName.toLowerCase() === filter.text.toLowerCase() &&
+            filter.checked
+        )
+      );
+      console.log('After Filter Values Filtering:', filteredData);
+    } else {
+      // Filtreler temizlenmişse, tüm verileri döndür
+      filteredData = this.data;
+    }
+  
+    // Verileri sıralama
+    if (this.sortColumn) {
+      filteredData = filteredData.sort((a, b) => {
+        const aValue = a[this.sortColumn];
+        const bValue = b[this.sortColumn];
+  
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return this.sortDirection === 'asc'
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+          return this.sortDirection === 'asc'
+            ? aValue - bValue
+            : bValue - aValue;
+        }
+        return 0;
+      });
+    }
+  
+    console.log('After Sorting:', filteredData);
+    return filteredData;
+  }
+
   updatePage(page: number = this.paginationInfo.currentPage) {
     this.paginationInfo.currentPage = page;
   
-    // Bu verileri socialService'den almak gerekebilir
-    const paginatedData = this.socialService.getPaginatedData(
-      this.paginationInfo.currentPage,
-      this.paginationInfo.itemsPerPage
-    );
+    // Filtrelenmiş ve sıralanmış veri setini al
+    const filteredData = this.filterData();
   
-    // `currentPageData`yı sınırla
-    this.currentPageData = paginatedData;
+    console.log('Filtered Data for Pagination:', filteredData);
+  
+    // Toplam sayfa sayısını güncelle
+    this.paginationInfo.totalItems = filteredData.length;
+    this.totalPages = Math.ceil(this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage);
+  
+    // Sayfa başına 9 öğe olmasını sağlamak için verileri paginate et
+    const startIndex: number = (page - 1) * this.paginationInfo.itemsPerPage;
+    const endIndex: number = startIndex + this.paginationInfo.itemsPerPage;
+  
+    // Sayfayı al
+    const paginatedData = filteredData.slice(startIndex, endIndex);
+  
+    console.log('Paginated Data:', paginatedData);
+  
+    // Eksik veri varsa boş öğelerle dolgu yap
+    const missingItemsCount: number = this.paginationInfo.itemsPerPage - paginatedData.length;
+    if (missingItemsCount > 0) {
+      const dummyItems: (SocialMediaModel | null)[] = Array(missingItemsCount).fill(null);
+      this.currentPageData = [...paginatedData, ...dummyItems];
+    } else {
+      this.currentPageData = paginatedData;
+    }
   }
 
-  getPaginatedData(currentPage: number, itemsPerPage: number): SocialMediaModel[] {
+  getPaginatedData(
+    currentPage: number,
+    itemsPerPage: number
+  ): SocialMediaModel[] {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return this.data.slice(startIndex, endIndex); // `socialMedia` doğru şekilde tanımlandığından emin olun
@@ -156,26 +251,49 @@ export class TableComponent implements OnInit {
 
   updateItemsPerPage(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
-    const newItemsPerPage = parseInt(inputElement.value, 10);
-    
-    // Servisten alınan maksimum değer
-    const maxItemsPerPage = this.socialService.getTotalItems();
-  
-    if (newItemsPerPage > 0  && newItemsPerPage <= maxItemsPerPage) {
-      // Kullanıcının girdiği değeri maksimum değerle sınırla
-      this.paginationInfo.itemsPerPage = Math.min(newItemsPerPage, maxItemsPerPage);
-      this.paginationInfo.currentPage = 1; // Sayfa 1'e döndür
-  
-      // Pagination bilgilerini yeniden hesapla ve sayfayı güncelle
-      this.paginationInfo.totalItems = this.socialService.getTotalItems();
-      this.totalPages = Math.ceil(
-        this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage
-      );
-      this.updatePage();
+    let newItemsPerPage = parseInt(inputElement.value, 10);
+
+    // Dinamik olarak hesaplanan maksimum değer
+    const maxItemsPerPage = this.getMaxItemsPerPage();
+
+    // Eğer yeni girilen değer maksimum değerden büyükse, maksimum değere sınırla
+    if (newItemsPerPage > maxItemsPerPage) {
+      newItemsPerPage = maxItemsPerPage;
     }
-  
-    // Input alanındaki değeri maksimum değere göre güncelle
+
+    // Eğer yeni girilen değer minimum değerden küçükse, minimum değere sınırla
+    if (newItemsPerPage < 1) {
+      newItemsPerPage = 1;
+    }
+
+    this.paginationInfo.itemsPerPage = newItemsPerPage;
+    this.paginationInfo.currentPage = 1; // Sayfa 1'e döndür
+
+    // Pagination bilgilerini yeniden hesapla ve sayfayı güncelle
+    this.paginationInfo.totalItems = this.socialService.getTotalItems();
+    this.totalPages = Math.ceil(
+      this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage
+    );
+    this.updatePage();
+
+    // Input alanındaki değeri güncellenmiş değere göre ayarla
     inputElement.value = this.paginationInfo.itemsPerPage.toString();
+  }
+
+  getMaxItemsPerPage(): number {
+    // Filtrelenmiş veri sayısını al
+    const filteredDataCount = this.filterData().length;
+
+    // Eğer filtreleme veya arama yapılmışsa filtrelenmiş veri sayısını döndür
+    if (
+      this.searchValue ||
+      (this.filterValues && this.filterValues.length > 0)
+    ) {
+      return filteredDataCount;
+    }
+
+    // Eğer filtreleme veya arama yapılmamışsa toplam öğe sayısını döndür
+    return this.getTotalItems();
   }
 
   onPageChange(event: Event | number) {
@@ -193,9 +311,10 @@ export class TableComponent implements OnInit {
       this.updatePage(pageNumber);
     }
   }
-  
+
   addMoreData(newData: SocialMediaModel[]) {
     this.socialService.addData(newData);
+    this.data = this.socialService.getSocialMedia(); // Verileri güncelle
     this.paginationInfo.totalItems = this.socialService.getTotalItems();
     this.totalPages = Math.ceil(
       this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage
@@ -210,12 +329,39 @@ export class TableComponent implements OnInit {
         if (result) {
           // Silme işlemi
           this.socialService.deleteSocialMedia(item.id);
+          this.data = this.socialService.getSocialMedia(); // Verileri güncelle
+          this.paginationInfo.totalItems = this.socialService.getTotalItems();
+          this.totalPages = Math.ceil(
+            this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage
+          );
+          this.updatePage();
         }
       });
   }
 
-  getTotalItems():number{
+  getTotalItems(): number {
     return this.socialService.getTotalItems();
+  }
+
+  handleSearchItems(searchItem: string) {
+    this.searchValue = searchItem;
+    console.log(searchItem);
+    this.updatePage(); // Filtreleme sonrası sayfa güncellemesi
+  }
+
+  handleFilterItems(filterItems: MenuButtonItems[]) {
+    this.filterValues = filterItems;
+  
+    // Eğer filtreler temizlendiğinde tüm verileri yüklemek gerekiyorsa:
+    if (filterItems.length === 0 || filterItems.every(filter => !filter.checked)) {
+      this.data = this.socialService.getSocialMedia(); // Tüm verileri tekrar yükle
+    }
+  
+    // Filtrelerin yeniden uygulandığından emin olun
+    const filteredData = this.filterData();
+    this.paginationInfo.totalItems = filteredData.length;
+    this.totalPages = Math.ceil(this.paginationInfo.totalItems / this.paginationInfo.itemsPerPage);
+    this.updatePage(); // Sayfayı güncelle
   }
 
   setDeleteSystemButtonStyle(): SystemButtonStyle {
@@ -237,4 +383,9 @@ export class TableComponent implements OnInit {
       fontSize: 'text-sm',
     };
   }
+}
+
+export interface TableHeader {
+  key: keyof SocialMediaModel;
+  label: string;
 }

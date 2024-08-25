@@ -1,0 +1,14 @@
+<button [matMenuTriggerFor]="menu" class="bg-white px-4 py-2 text-primary text-2xl rounded-full ms-4">
+    <i class="ri-filter-2-fill"></i>
+</button>
+<mat-menu #menu="matMenu" class="!bg-white mt-5 gap-4">
+    <div class="grid grid-cols-2 gap-4 p-3">
+        <ng-container *ngFor="let item of menus">
+            <div class="flex justify-start items-center gap-2">
+                <input type="checkbox" name="socailMediaLink" id="socailMediaLink" [checked]="item.checked"
+                    (click)="onItemClicked(item)">
+                <label for="socailMediaLink">{{item.text | pascalCase}}</label>
+            </div>
+        </ng-container>
+    </div>
+</mat-menu>

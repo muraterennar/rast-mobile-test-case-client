@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { PascalCasePipe } from "../../shared/pipes/pascal-case.pipe";
 
 @Component({
   selector: 'app-system-link',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, PascalCasePipe],
   templateUrl: './system-link.component.html',
   styleUrl: './system-link.component.css',
 })
