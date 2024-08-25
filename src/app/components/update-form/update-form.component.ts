@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import {
+  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -20,6 +21,8 @@ import { SocialMediaTypeModal } from '../../shared/models/socialMediaType.modal'
 import { SocialMediaModel } from '../../shared/models/social.model';
 import { SocialService } from '../../services/social.service';
 import { environment } from '../../../environments/environment.development';
+import { ValidUrlDirectiveDirective } from '../../shared/directives/valid-url-directive.directive';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-update-form',
@@ -29,6 +32,8 @@ import { environment } from '../../../environments/environment.development';
     SystemButtonComponent,
     ReactiveFormsModule,
     FormsModule,
+    ValidUrlDirectiveDirective,
+    CommonModule,
   ],
   templateUrl: './update-form.component.html',
   styleUrl: './update-form.component.css',
@@ -36,8 +41,7 @@ import { environment } from '../../../environments/environment.development';
 export class UpdateFormComponent implements OnInit {
   updatedFormGroup: FormGroup;
   closeIcon: Icons = Icons.close;
-  pageSize = environment.defaultPageSize;
-  page = environment.defaultPage;
+  submitted: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -56,33 +60,38 @@ export class UpdateFormComponent implements OnInit {
 
   setForm() {
     this.updatedFormGroup = new FormGroup({
-      _id: new FormControl(this.data.datas._id),
+      _id: new FormControl(this.data.datas._id || ''),
       SocialMediaLink: new FormControl(
-        this.data.datas.SocialMediaLink,
-        Validators.required
+        this.data.datas.SocialMediaLink || '',
+        Validators.required,
       ),
       SocialMediaName: new FormControl(
-        this.data.datas.SocialMediaName,
+        this.data.datas.SocialMediaName || '',
         Validators.required
       ),
       Description: new FormControl(
-        this.data.datas.Description,
+        this.data.datas.Description || '',
         Validators.required
       ),
     });
   }
 
   async onSubmit() {
-    let socialMediaModel: SocialMediaModel = this.updatedFormGroup
-      .value as SocialMediaModel;
+    this.submitted = true;
 
-    await this.socialService.updateSocialMedia(socialMediaModel);
+    if (this.updatedFormGroup.valid) {
+      let socialMediaModel: SocialMediaModel = this.updatedFormGroup
+        .value as SocialMediaModel;
 
-    this.dialogRef.close(true);
+      await this.socialService.updateSocialMedia(socialMediaModel);
+
+      this.dialogRef.close(true);
+    }
   }
 
   onClose() {
     this.customModalService.closeDialog();
+    this.router.navigate(['home']);
     this.dialogRef.close(false);
   }
 

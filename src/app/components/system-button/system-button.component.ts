@@ -11,6 +11,7 @@ export class SystemButtonComponent {
   @Input() text: string;
   @Input() icon: string;
   @Input() color: string;
+  @Input() type?: 'button' | 'submit' | 'reset' = 'button';
   @Input() systemButtonStyle: Partial<SystemButtonStyle>;
   @Input() menu: any;
 

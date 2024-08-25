@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { PascalCasePipe } from "../../shared/pipes/pascal-case.pipe";
 
@@ -16,11 +16,17 @@ export class SystemLinkComponent {
   @Input() routerLink?: string;
   @Input() link?:string;
 
+  @Output() linkClicked = new EventEmitter<void>();
+
   getStyle(): string {
     if (this.systemLinkStyle)
       return `${this.systemLinkStyle.color} ${this.systemLinkStyle.border} ${this.systemLinkStyle.background} ${this.systemLinkStyle.borderRadius} ${this.systemLinkStyle.fontSize} ${this.systemLinkStyle.fontWeight} ${this.systemLinkStyle.padding} ${this.systemLinkStyle.margin}`;
     else
       return 'text-dark font-weight-bold p-2 m-2';
+  }
+
+  onClick() {
+    this.linkClicked.emit();
   }
 }
 

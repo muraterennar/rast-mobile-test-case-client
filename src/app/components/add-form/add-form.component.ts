@@ -6,6 +6,7 @@ import {
   SystemButtonStyle,
 } from '../system-button/system-button.component';
 import {
+  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -16,9 +17,10 @@ import {
 import { SocialMediaModel } from '../../shared/models/social.model';
 import { Icons } from '../../shared/models/icons';
 import { CustomModalService } from '../../services/common/custom-modal.service';
-import { Router } from '@angular/router';
 import { SocialService } from '../../services/social.service';
 import { environment } from '../../../environments/environment.development';
+import { ValidUrlDirectiveDirective } from '../../shared/directives/valid-url-directive.directive';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-add-form',
@@ -28,6 +30,8 @@ import { environment } from '../../../environments/environment.development';
     SystemButtonComponent,
     ReactiveFormsModule,
     FormsModule,
+    CommonModule,
+    ValidUrlDirectiveDirective,
   ],
   templateUrl: './add-form.component.html',
   styleUrl: './add-form.component.css',
@@ -35,6 +39,7 @@ import { environment } from '../../../environments/environment.development';
 export class AddFormComponent implements OnInit {
   addedFormGroup: FormGroup;
   closeIcon: Icons = Icons.close;
+  submitted: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -51,27 +56,29 @@ export class AddFormComponent implements OnInit {
 
   setForm() {
     this.addedFormGroup = new FormGroup({
-      SocialMediaLink: new FormControl('', Validators.required),
+      SocialMediaLink: new FormControl('', [
+        Validators.required,
+      ]),
       SocialMediaName: new FormControl('', Validators.required),
       Description: new FormControl('', Validators.required),
     });
-
-    console.log(this.addedFormGroup);
   }
 
   confirm() {
-    let socialMedia: SocialMediaModel = this.addedFormGroup
-      .value as SocialMediaModel;
+    this.submitted = true;
+    if (this.addedFormGroup.valid) {
+      let socialMedia: SocialMediaModel = this.addedFormGroup
+        .value as SocialMediaModel;
 
-    this.socialService.createSocialMedia(socialMedia);
+      this.socialService.createSocialMedia(socialMedia);
 
-    this.socialService.getSocialMedia(
-      environment.defaultPage,
-      environment.defaultPageSize
-    );
+      this.socialService.getSocialMedia(
+        environment.defaultPage,
+        environment.defaultPageSize
+      );
 
-    this.dialogRef.close(true);
-    // this.customModalService.closeDialog();
+      this.dialogRef.close(true);
+    }
   }
 
   cancel(): void {

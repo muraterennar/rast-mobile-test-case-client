@@ -1,6 +1,6 @@
 
 @if (routerLink) {
-    <a [routerLink]="routerLink" [class]="getStyle() + 'flex justify-center items-center gap-2'">
+    <a [routerLink]="routerLink" (click)="onClick()" [class]="getStyle() + 'flex justify-center items-center gap-2'">
         @if(icon)
         {
         <i [class]="icon"></i>
@@ -11,7 +11,7 @@
     </a>
 }
 @else {
-    <a [href]="link" target="_blank" [class]="getStyle() + 'flex justify-center items-center gap-2'">
+    <a [href]="link" target="_blank" (click)="onClick()" [class]="getStyle() + 'flex justify-center items-center gap-2'">
         @if(icon)
         {
         <i [class]="icon"></i>

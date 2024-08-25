@@ -22,29 +22,12 @@
         </tr>
     </thead>
     <tbody class="bg-white divide-y divide-secondary-200">
-        <!-- <tr *ngFor="let social of socailMediaDatas"
-            class="odd:bg-secondary-100 even:bg-secondary-200 [&>td]:border-e border-secondary-300 h-16 p-4">
-            <td class="p-5 whitespace-nowrap">{{ social.socialMediaLink }}</td>
-            <td class="p-5 whitespace-nowrap">{{ social.socialMediaName| pascalCase }}</td>
-            <td class="p-5 whitespace-nowrap">{{ social.description }}</td>
-            <td class="p-5 whitespace-nowrap">
-                <ng-container *ngIf="social">
-                    <div class="flex justify-center items-center gap-4">
-                        <app-system-button (click)="handleNavigation(social?.id)" [icon]="updateIcon"
-                            [systemButtonStyle]="setUpdateSystemLinkStyle()"></app-system-button>
-                        <app-system-button [icon]="deleteIcon" [systemButtonStyle]="setDeleteSystemButtonStyle()"
-                            (click)="openDeleteSheet(social)"></app-system-button>
-                    </div>
-                </ng-container>
-            </td>
-        </tr> -->
-
         <ng-container *ngIf="socailMediaDatas && socailMediaDatas.length; else noTableDataTemplate">
             <tr *ngFor="let social of socailMediaDatas"
                 class="odd:bg-secondary-100 even:bg-secondary-200 [&>td]:border-e border-secondary-300 h-16 p-4">
-                <td class="p-5 whitespace-nowrap">{{ social.SocialMediaLink }}</td>
-                <td class="p-5 whitespace-nowrap">{{ social.SocialMediaName | pascalCase }}</td>
-                <td class="p-5 whitespace-nowrap">{{ social.Description }}</td>
+                <td class="p-5 whitespace-nowrap cursor-pointer" [appLinkRedirect]="social?.SocialMediaLink" [appLinkColor]="'#744BFC'" >{{ social?.SocialMediaLink | linkDomain}}</td>
+                <td class="p-5 whitespace-nowrap">{{ social?.SocialMediaName | pascalCase }}</td>
+                <td class="p-5 whitespace-nowrap">{{ social?.Description }}</td>
                 <td class="p-5 whitespace-nowrap">
                     <ng-container *ngIf="social">
                         <div class="flex justify-center items-center gap-4">

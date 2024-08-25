@@ -23,6 +23,9 @@ import { ToolbarComponent } from '../toolbar/toolbar.component';
 import { PaginateModal } from '../../shared/models/paginateModal';
 import { MatDialogRef } from '@angular/material/dialog';
 import { SocialMediaTypeModal } from '../../shared/models/socialMediaType.modal';
+import { LinkDomainPipe } from "../../shared/pipes/link-domain.pipe";
+import { LinkColorDirective } from '../../shared/directives/link-color.directive';
+import { LinkRedirectDirective } from '../../shared/directives/link-redirect.directive';
 
 @Component({
   selector: 'app-table',
@@ -36,7 +39,10 @@ import { SocialMediaTypeModal } from '../../shared/models/socialMediaType.modal'
     MatBottomSheetModule,
     PascalCasePipe,
     ToolbarComponent,
-  ],
+    LinkDomainPipe,
+    LinkColorDirective,
+    LinkRedirectDirective
+],
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css'], // Fix the typo from styleUrl to styleUrls
 })

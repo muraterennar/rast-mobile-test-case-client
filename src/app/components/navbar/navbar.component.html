@@ -7,7 +7,7 @@
       <div
         #menuDiv
         class="flex flex-col p-12 justify-start gap-7 items-start h-screen lg:flex-row lg:h-auto lg:p-0 lg:justify-around lg:items-center">
-        <app-system-link *ngFor="let category of categories | async" [text]="category.name" [link]="category.link"></app-system-link>
+        <app-system-link *ngFor="let category of categories | async" [text]="category.name" (linkClicked)="toggleMenu()" [link]="category.link"></app-system-link>
       </div>
     </div>
   
