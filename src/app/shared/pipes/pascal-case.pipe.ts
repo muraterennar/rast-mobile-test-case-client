@@ -6,17 +6,19 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class PascalCasePipe implements PipeTransform {
   transform(value: string | null | undefined): string {
+    
+    // Eğer value null veya undefined ise, boş bir string döndürün
     if (value === null || value === undefined) {
       return '';
     }
 
-    // Convert the value to a string
+    // Gelen değeri bir string'e dönüştürün
     const str = value.toString();
 
-    // Split the string into words based on spaces or underscores
+    // Stringi boşluklar veya alt çizgiler ile bölerek kelimelere ayırın
     const words = str.split(/[\s_]+/);
 
-    // Capitalize the first letter of each word and join them
+    // Her kelimenin ilk harfini büyük harf yapıp, geri kalanını küçük harfe çevirin ve kelimeleri birleştirin
     return words
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');

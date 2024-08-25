@@ -44,7 +44,7 @@ import { LinkRedirectDirective } from '../../shared/directives/link-redirect.dir
     LinkRedirectDirective
 ],
   templateUrl: './table.component.html',
-  styleUrls: ['./table.component.css'], // Fix the typo from styleUrl to styleUrls
+  styleUrls: ['./table.component.css'],
 })
 export class TableComponent implements OnInit {
   deleteIcon: string = Icons.delete;
@@ -53,12 +53,11 @@ export class TableComponent implements OnInit {
 
   socailMediaDatas: SocialMediaModel[] = [];
   private currentModalId: string | null;
-
-  currentPageData: SocialMediaModel[] = [];
+  
   pageInfo: PaginateModal<SocialMediaModel>;
 
-  sortDirection: 'asc' | 'desc' = 'asc'; // Default sort direction
-  sortColumn: keyof SocialMediaModel = 'SocialMediaLink'; // Default sort column
+  sortDirection: 'asc' | 'desc' = 'asc'; // Default sıralama değerleri
+  sortColumn: keyof SocialMediaModel = 'SocialMediaLink'; // Default sıralama kolonu
 
   tableHeads: TableHeader[] = [
     { key: 'SocialMediaLink', label: 'Sosyal Medya Linki' },
@@ -83,11 +82,9 @@ export class TableComponent implements OnInit {
     this.activatedRoute.paramMap.pipe(take(1)).subscribe((params) => {
       const id = params.get('id');
       if (id) {
-        this.openUpdateDialog(id);
+        this.openUpdateDialog(id); // ID varsa güncelleme diyalogunu aç
       }
     });
-
-    this.currentPageData = [...this.socailMediaDatas]; // Başlangıçta tüm verileri göster
   }
 
   async getSocialMedia(page: number = 1, limit: number = 9): Promise<void> {
@@ -106,6 +103,7 @@ export class TableComponent implements OnInit {
     });
   }
 
+  // Verileri belirtilen sütuna göre sıralar
   sortData(column: keyof SocialMediaModel): void {
     const newDirection =
       this.sortColumn === column
@@ -134,6 +132,7 @@ export class TableComponent implements OnInit {
     this.sortColumn = column;
   }
 
+  // Sayfa numarasını değiştirmek için kullanılır
   changePage(event: Event): void {
     const inputElement = event.target as HTMLInputElement; // event.target'ı HTMLInputElement olarak tip dönüşümü yapıyoruz
     const value = Number(inputElement.value);
@@ -141,19 +140,20 @@ export class TableComponent implements OnInit {
     if (value > 0 && value <= this.pageInfo.totalPages) {
       this.getSocialMedia(value);
     } else {
-      inputElement.value = this.pageInfo.page.toString();
+      inputElement.value = this.pageInfo.page.toString(); // Geçersiz sayfa numarasını geri al
     }
   }
 
+  // Sayfa limitini değiştirmek için kullanılır
   chanceLimit(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     const value = Number(inputElement.value);
 
     if (value > 0 && value <= this.pageInfo.totalDocs) {
       this.pageInfo.limit = value;
-      this.getSocialMedia(1, value);
+      this.getSocialMedia(1, value); // Yeni limit ile verileri al
     } else {
-      inputElement.value = this.pageInfo.limit.toString();
+      inputElement.value = this.pageInfo.limit.toString(); // Geçersiz limit değerini geri al
     }
   }
 
@@ -169,8 +169,8 @@ export class TableComponent implements OnInit {
     }
   }
 
+   // URL'yi günceller ve ardından güncelleme diyalogunu açar
   handleNavigation(id: number): void {
-    // URL'yi güncelle ve ardından modalı aç
     this.router
       .navigate(['home', id.toString()], { queryParamsHandling: 'merge' })
       .then(() => {

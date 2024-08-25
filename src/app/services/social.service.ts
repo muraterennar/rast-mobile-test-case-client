@@ -13,6 +13,7 @@ import { PaginateModal } from '../shared/models/paginateModal';
 export class SocialService {
   constructor(private httpService: CustomHttpService) {}
 
+    // Sosyal medya kayıtlarını sayfalı bir şekilde alır
   async getSocialMedia(
     page: number,
     limit: number,
@@ -36,6 +37,7 @@ export class SocialService {
     }
   }
 
+    // Belirli bir ID'ye sahip sosyal medya kaydını alır
   async getSocialMediaById(
     id: string,
     successCallBack?: (response?: SocialMediaModel) => void,
@@ -56,6 +58,7 @@ export class SocialService {
     }
   }
 
+   // Arama sorgusuna göre sosyal medya kayıtlarını alır
   async getSocialMediaBySearch(
     query: string,
     succesCallBack?: (response?: PaginateModal<SocialMediaModel>) => void,
@@ -75,6 +78,7 @@ export class SocialService {
     else errorCallBack?.('Error');
   }
 
+    // Yeni bir sosyal medya kaydı oluşturur
   async createSocialMedia(
     socialMedia: SocialMediaModel,
     successCallBack?: (response?: SocialMediaModel) => void,
@@ -98,6 +102,7 @@ export class SocialService {
     }
   }
 
+    // Var olan bir sosyal medya kaydını günceller
   async updateSocialMedia(
     socialMedia: SocialMediaModel,
     successCallBack?: (response?: SocialMediaModel) => void,
@@ -121,6 +126,7 @@ export class SocialService {
     }
   }
 
+   // Belirli bir ID'ye sahip sosyal medya kaydını siler
   async deleteSocialMedia(
     id: string,
     successCallBack?: (response?: SocialMediaModel) => void,
