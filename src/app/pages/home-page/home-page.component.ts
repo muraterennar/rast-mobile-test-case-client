@@ -8,6 +8,7 @@ import { ToolbarComponent } from '../../components/toolbar/toolbar.component';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { VisitedComponent } from '../../components/visited/visited.component';
 
 @Component({
   selector: 'app-home-page',
@@ -22,6 +23,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
+    VisitedComponent
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.css',

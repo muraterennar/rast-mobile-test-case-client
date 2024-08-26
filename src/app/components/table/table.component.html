@@ -25,7 +25,7 @@
         <ng-container *ngIf="socailMediaDatas && socailMediaDatas.length; else noTableDataTemplate">
             <tr *ngFor="let social of socailMediaDatas"
                 class="odd:bg-secondary-100 even:bg-secondary-200 [&>td]:border-e border-secondary-300 h-16 p-4">
-                <td class="p-5 whitespace-nowrap cursor-pointer" [appLinkRedirect]="social?.SocialMediaLink"
+                <td class="p-5 whitespace-nowrap cursor-pointer" [appLinkRedirect]="social"
                     [appLinkColor]="'#744BFC'">{{ social?.SocialMediaLink | linkDomain}}</td>
                 <td class="p-5 whitespace-nowrap">{{ social?.SocialMediaName | pascalCase }}</td>
                 <td class="p-5 whitespace-nowrap">{{ social?.Description }}</td>

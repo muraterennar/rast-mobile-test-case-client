@@ -30,7 +30,7 @@ export class SocialService {
       PaginateModal<SocialMediaModel>
     >(this.LOCAL_STORAGE_KEY);
 
-    if (cachedData.page === page && cachedData.limit === limit) {
+    if (cachedData?.page === page && cachedData?.limit === limit) {
       // Cache'den veriyi döndür
       successCallBack?.(cachedData);
       return;

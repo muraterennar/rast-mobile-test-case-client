@@ -1,13 +1,15 @@
 import { Directive, HostListener, Input } from '@angular/core';
+import { SocialMediaModel } from '../models/social.model';
+import { VisitedService } from '../../services/visited.service';
 
 @Directive({
   selector: '[appLinkRedirect]',
   standalone: true,
 })
 export class LinkRedirectDirective {
-  @Input('appLinkRedirect') url: string;
+  @Input('appLinkRedirect') socialMediaModel: SocialMediaModel;
 
-  constructor() {}
+  constructor(private visitedService:VisitedService) {}
 
   // 'click' olayını dinleyen bir host listener tanımlanır
   // Bu, direktifin uygulandığı HTML elementine tıklandığında tetiklenir
@@ -16,8 +18,10 @@ export class LinkRedirectDirective {
     event.preventDefault();
 
     // Eğer 'url' değeri varsa, yeni bir sekmede bu URL'yi açar
-    if (this.url) {
-      window.open(this.url, '_blank');
+    if (this.socialMediaModel) {
+      window.open(this.socialMediaModel.SocialMediaLink, '_blank');
     }
+
+    this.visitedService.setVisitedItems(this.socialMediaModel);
   }
 }

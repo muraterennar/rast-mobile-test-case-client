@@ -1,0 +1,15 @@
+<div class="fixed top-4 right-4 z-20 flex flex-col items-end">
+    <button (click)="toggleMenu()" [matBadge]="visitedItems?.length" class="bg-blue-500 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors">
+      <i class="ri-information-line text-xl"></i>
+    </button>
+  
+    <div *ngIf="isMenuOpen" class="mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200">
+      <mat-list>
+        <mat-list-item class="text-center ">
+            <h3 class="text-xs" matLine>Item 1</h3>
+            <p class="text-xs" matLine>Item 1 description</p>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+      </mat-list>
+    </div>
+  </div>
